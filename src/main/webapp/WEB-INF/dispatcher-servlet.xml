@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd">
+
+
+	<!-- Adding component look up property -->
+	<context:component-scan base-package="com.bean" />
+
+	<!-- Adding property of conversion, validation and formatting support -->
+	<mvc:annotation-driven />
+
+	<!-- View Resolver -->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+
+		<property name="prefix" value="/WEB-INF/view" />
+		<property name="suffix" value=".jsp" />
+
+	</bean>
+
+	<!-- Hibernate configuration starts from here -->
+	<!-- Step : 1 -> Define database dataSource and connection pool -->
+	<bean name="myDataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+
+		<!-- All the properties related to connecting to database -->
+		<property name="driverClassName"
+			value="com.mysql.cj.jdbc.Driver" />
+		<property name="url"
+			value="jdbc:mysql://localhost:3306/spring_crud_udemy" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+
+	</bean>
+
+	<!-- Step : 2 -> Setting up Hibernate session factory -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+
+		<property name="dataSource" ref="myDataSource" />
+		
+		<property name="packagesToScan" value="com.bean.Entity" />
+
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL55Dialect</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="hibernate.use_sql_comments">true</prop>
+			</props>
+		</property>
+
+	</bean>
+
+	<!-- Step : 3 -> Hibernate transaction manager -->
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+
+		<property name="sessionFactory" ref="sessionFactory" />
+
+	</bean>
+	
+	<!-- Step : 4 -> Enable configuration of transactional behaviour based on annotations -->
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	
+	<!-- Step : 5 -> Adding support for CSS -->
+	<mvc:resources location="/resources/" mapping="/resources/**"/>
+	
+
+</beans>
